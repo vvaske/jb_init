@@ -5,4 +5,5 @@ void spin() {
     while(1) {
         sleep(5);
     }
+    __builtin_unreachable();
 }

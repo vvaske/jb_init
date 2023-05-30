@@ -9,6 +9,7 @@ void start(const struct KernelArgs* kernArgs, void* preDyldMH) {
     const char** envp = (const char**)&kernArgs->args[argc + 1];
     const char** apple = envp;
     while (*apple != NULL) apple++;
+    apple++;
     main(argc, (char**)argv, (char**)envp, (char**)apple);
     while(1) {
         sleep(5);

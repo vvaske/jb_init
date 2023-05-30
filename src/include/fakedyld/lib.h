@@ -5,5 +5,8 @@
 
 void *memcpy(void *dst, const void *src, size_t n);
 void *memmove(void *dest, const void *src, size_t n);
+int isdigit(int c);
+int atoi(const char* str);
+void bzero (void *s, size_t n);
 
 #endif

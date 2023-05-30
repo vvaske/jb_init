@@ -1,11 +1,14 @@
-CFLAGS += -miphoneos-version-min=15.0 -flto=thin -Oz -std=gnu17
+CFLAGS += -miphoneos-version-min=15.0 -O0 -std=gnu17
 CFLAGS += -Wall -Wextra -Wno-unused-parameter
 CFLAGS += -Wno-unused-command-line-argument
 export CFLAGS LDFLAGS
 
-SUBDIRS = launchd fakedyld
+SUBDIRS = launchd
 
-all: $(SUBDIRS)
+all: $(SUBDIRS) fakedyld
+
+fakedyld: $(SUBDIRS)
+	$(MAKE) -C fakedyld
 
 $(SUBDIRS):
 	$(MAKE) -C $@

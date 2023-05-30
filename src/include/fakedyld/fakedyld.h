@@ -16,4 +16,8 @@
 #include <fakedyld/utils.h>
 #include <paleinfo.h>
 
+void systeminfo(struct systeminfo* sysinfo_p);
+void rootwait(struct systeminfo* sysinfo_p);
+void chroot_realfs(struct paleinfo* pinfo_p, struct systeminfo* sysinfo_p);
+void mountroot(struct paleinfo* pinfo_p, struct systeminfo* sysinfo_p);
 #endif
