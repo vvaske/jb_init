@@ -1,142 +1,114 @@
 #include <fakedyld/fakedyld.h>
 
-const char* const sys_errlist[] = {
-    "Undefined error: 0",                /*  0 - ENOERROR */
-    "Operation not permitted",           /*  1 - EPERM */
-    "No such file or directory",         /*  2 - ENOENT */
-    "No such process",                   /*  3 - ESRCH */
-    "Interrupted system call",           /*  4 - EINTR */
-    "Input/output error",                /*  5 - EIO */
-    "Device not configured",             /*  6 - ENXIO */
-    "Argument list too long",            /*  7 - E2BIG */
-    "Exec format error",                 /*  8 - ENOEXEC */
-    "Bad file descriptor",               /*  9 - EBADF */
-    "No child processes",                /* 10 - ECHILD */
-    "Resource deadlock avoided",         /* 11 - EDEADLK */
-    "Cannot allocate memory",            /* 12 - ENOMEM */
-    "Permission denied",                 /* 13 - EACCES */
-    "Bad address",                       /* 14 - EFAULT */
-    "Block device required",             /* 15 - ENOTBLK */
-    "Resource busy",                     /* 16 - EBUSY */
-    "File exists",                       /* 17 - EEXIST */
-    "Cross-device link",                 /* 18 - EXDEV */
-    "Operation not supported by device", /* 19 - ENODEV */
-    "Not a directory",                   /* 20 - ENOTDIR */
-    "Is a directory",                    /* 21 - EISDIR */
-    "Invalid argument",                  /* 22 - EINVAL */
-    "Too many open files in system",     /* 23 - ENFILE */
-    "Too many open files",               /* 24 - EMFILE */
-    "Inappropriate ioctl for device",    /* 25 - ENOTTY */
-    "Text file busy",                    /* 26 - ETXTBSY */
-    "File too large",                    /* 27 - EFBIG */
-    "No space left on device",           /* 28 - ENOSPC */
-    "Illegal seek",                      /* 29 - ESPIPE */
-    "Read-only file system",             /* 30 - EROFS */
-    "Too many links",                    /* 31 - EMLINK */
-    "Broken pipe",                       /* 32 - EPIPE */
-
-    /* math software */
-    "Numerical argument out of domain", /* 33 - EDOM */
-    "Result too large",                 /* 34 - ERANGE */
-
-    /* non-blocking and interrupt i/o */
-    "Resource temporarily unavailable", /* 35 - EAGAIN */
-                                        /* 35 - EWOULDBLOCK */
-    "Operation now in progress",        /* 36 - EINPROGRESS */
-    "Operation already in progress",    /* 37 - EALREADY */
-
-    /* ipc/network software -- argument errors */
-    "Socket operation on non-socket", /* 38 - ENOTSOCK */
-    "Destination address required",   /* 39 - EDESTADDRREQ */
-    "Message too long",               /* 40 - EMSGSIZE */
-    "Protocol wrong type for socket", /* 41 - EPROTOTYPE */
-    "Protocol not available",         /* 42 - ENOPROTOOPT */
-    "Protocol not supported",         /* 43 - EPROTONOSUPPORT */
-    "Socket type not supported",      /* 44 - ESOCKTNOSUPPORT */
-    "Operation not supported",        /* 45 - ENOTSUP */
-    "Protocol family not supported",  /* 46 - EPFNOSUPPORT */
-                                      /* 47 - EAFNOSUPPORT */
-    "Address family not supported by protocol family",
-    "Address already in use",         /* 48 - EADDRINUSE */
-    "Can't assign requested address", /* 49 - EADDRNOTAVAIL */
-
-    /* ipc/network software -- operational errors */
-    "Network is down",                     /* 50 - ENETDOWN */
-    "Network is unreachable",              /* 51 - ENETUNREACH */
-    "Network dropped connection on reset", /* 52 - ENETRESET */
-    "Software caused connection abort",    /* 53 - ECONNABORTED */
-    "Connection reset by peer",            /* 54 - ECONNRESET */
-    "No buffer space available",           /* 55 - ENOBUFS */
-    "Socket is already connected",         /* 56 - EISCONN */
-    "Socket is not connected",             /* 57 - ENOTCONN */
-    "Can't send after socket shutdown",    /* 58 - ESHUTDOWN */
-    "Too many references: can't splice",   /* 59 - ETOOMANYREFS */
-    "Operation timed out",                 /* 60 - ETIMEDOUT */
-    "Connection refused",                  /* 61 - ECONNREFUSED */
-
-    "Too many levels of symbolic links", /* 62 - ELOOP */
-    "File name too long",                /* 63 - ENAMETOOLONG */
-
-    /* should be rearranged */
-    "Host is down",        /* 64 - EHOSTDOWN */
-    "No route to host",    /* 65 - EHOSTUNREACH */
-    "Directory not empty", /* 66 - ENOTEMPTY */
-
-    /* quotas & mush */
-    "Too many processes",  /* 67 - EPROCLIM */
-    "Too many users",      /* 68 - EUSERS */
-    "Disc quota exceeded", /* 69 - EDQUOT */
-
-    /* Network File System */
-    "Stale NFS file handle",             /* 70 - ESTALE */
-    "Too many levels of remote in path", /* 71 - EREMOTE */
-    "RPC struct is bad",                 /* 72 - EBADRPC */
-    "RPC version wrong",                 /* 73 - ERPCMISMATCH */
-    "RPC prog. not avail",               /* 74 - EPROGUNAVAIL */
-    "Program version wrong",             /* 75 - EPROGMISMATCH */
-    "Bad procedure for program",         /* 76 - EPROCUNAVAIL */
-
-    "No locks available",                /* 77 - ENOLCK */
-    "Function not implemented",          /* 78 - ENOSYS */
-    "Inappropriate file type or format", /* 79 - EFTYPE */
-    "Authentication error",              /* 80 - EAUTH */
-    "Need authenticator",                /* 81 - ENEEDAUTH */
-
-    "Device power is off",                       /* 82 - EPWROFF */
-    "Device error",                              /* 83 - EDEVERR */
-    "Value too large to be stored in data type", /* 84 - EOVERFLOW */
-
-    /* program loading errors */
-    "Bad executable (or shared library)", /* 85 - EBADEXEC */
-    "Bad CPU type in executable",         /* 86 - EBADARCH */
-    "Shared library version mismatch",    /* 87 - ESHLIBVERS */
-    "Malformed Mach-o file",              /* 88 - EBADMACHO */
-    "Operation canceled",                 /* 89 - ECANCELED */
-    "Identifier removed",                 /* 90 - EIDRM */
-    "No message of desired type",         /* 91 - ENOMSG */
-    "Illegal byte sequence",              /* 92 - EILSEQ */
-    "Attribute not found",                /* 93 - ENOATTR */
-    "Bad message",                        /* 94 - EBADMSG */
-    "EMULTIHOP (Reserved)",               /* 95 - EMULTIHOP */
-    "No message available on STREAM",     /* 96 - ENODATA */
-    "ENOLINK (Reserved)",                 /* 97 - ENOLINK */
-    "No STREAM resources",                /* 98 - ENOSR */
-    "Not a STREAM",                       /* 99 - ENOSTR */
-    "Protocol error",                     /* 100 - EPROTO */
-    "STREAM ioctl timeout",               /* 101 - ETIME */
-    "Operation not supported on socket",  /* 102 - EOPNOTSUPP */
-    "Policy not found",                   /* 103 - ENOPOLICY */
-    "State not recoverable",              /* 104 - ENOTRECOVERABLE */
-    "Previous owner died",                /* 105 - EOWNERDEAD */
-
-    "Interface output queue is full", /* 106 - EQFULL */
-};
-
-static const char* unk_err = "Unknown Error";
-
 const char *strerror(int err) {
-    if (err < 0 || err > ELAST)
-        return unk_err;
-    else
-        return sys_errlist[err];
+    switch(err) {
+        case EUNDEFINED:            return (const char*)"Undefined error: 0";
+        case EPERM:                 return (const char*)"Operation not permitted";
+        case ENOENT:                return (const char*)"No such file or directory";
+        case ESRCH:                 return (const char*)"No such process";
+        case EINTR:                 return (const char*)"Interrupted system call";
+        case EIO:                   return (const char*)"Input/output error";
+        case ENXIO:                 return (const char*)"Device not configured";
+        case E2BIG:                 return (const char*)"Argument list too long";
+        case ENOEXEC:               return (const char*)"Exec format error";
+        case EBADF:                 return (const char*)"Bad file descriptor";
+        case ECHILD:                return (const char*)"No child processes";
+        case EDEADLK:               return (const char*)"Resource deadlock avoided";
+        case ENOMEM:                return (const char*)"Cannot allocate memory";
+        case EACCES:                return (const char*)"Permission denied";
+        case EFAULT:                return (const char*)"Bad address";
+        case ENOTBLK:               return (const char*)"Block device required";
+        case EBUSY:                 return (const char*)"Resource busy";
+        case EEXIST:                return (const char*)"File exists";
+        case EXDEV:                 return (const char*)"Cross-device link";
+        case ENODEV:                return (const char*)"Operation not supported by device";
+        case ENOTDIR:               return (const char*)"Not a directory";
+        case EISDIR:                return (const char*)"Is a directory";
+        case EINVAL:                return (const char*)"Invalid argument";
+        case ENFILE:                return (const char*)"Too many open files in system";
+        case EMFILE:                return (const char*)"Too many open files";
+        case ENOTTY:                return (const char*)"Inappropriate ioctl for device";
+        case ETXTBSY:               return (const char*)"Text file busy";
+        case EFBIG:                 return (const char*)"File too large";
+        case ENOSPC:                return (const char*)"No space left on device";
+        case ESPIPE:                return (const char*)"Illegal seek";
+        case EROFS:                 return (const char*)"Read-only file system";
+        case EMLINK:                return (const char*)"Too many links";
+        case EPIPE:                 return (const char*)"Broken pipe";
+        case EDOM:                  return (const char*)"Numerical argument out of domain";
+        case ERANGE:                return (const char*)"Result too large";
+        case EAGAIN:                return (const char*)"Resource temporarily unavailable";
+        case EINPROGRESS:           return (const char*)"Operation now in progress";
+        case EALREADY:              return (const char*)"Operation already in progress";
+        case ENOTSOCK:              return (const char*)"Socket operation on non-socket";
+        case EDESTADDRREQ:          return (const char*)"Destination address required";
+        case EMSGSIZE:              return (const char*)"Message too long";
+        case EPROTOTYPE:            return (const char*)"Protocol wrong type for socket";
+        case ENOPROTOOPT:           return (const char*)"Protocol not available";
+        case EPROTONOSUPPORT:       return (const char*)"Protocol not supported";
+        case ESOCKTNOSUPPORT:       return (const char*)"Socket type not supported";
+        case ENOTSUP:               return (const char*)"Operation not supported";
+        case EPFNOSUPPORT:          return (const char*)"Protocol family not supported";
+        case EAFNOSUPPORT:          return (const char*)"Address family not supported by protocol family";
+        case EADDRINUSE:            return (const char*)"Address already in use";
+        case EADDRNOTAVAIL:         return (const char*)"Can't assign requested address";
+        case ENETDOWN:              return (const char*)"Network is down";
+        case ENETUNREACH:           return (const char*)"Network is unreachable";
+        case ENETRESET:             return (const char*)"Network dropped connection on reset";
+        case ECONNABORTED:          return (const char*)"Software caused connection abort";
+        case ECONNRESET:            return (const char*)"Connection reset by peer";
+        case ENOBUFS:               return (const char*)"No buffer space available";
+        case EISCONN:               return (const char*)"Socket is already connected";
+        case ENOTCONN:              return (const char*)"Socket is not connected";
+        case ESHUTDOWN:             return (const char*)"Can't send after socket shutdown";
+        case ETOOMANYREFS:          return (const char*)"Too many references: can't splice";
+        case ETIMEDOUT:             return (const char*)"Operation timed out";
+        case ECONNREFUSED:          return (const char*)"Connection refused";
+        case ELOOP:                 return (const char*)"Too many levels of symbolic links";
+        case ENAMETOOLONG:          return (const char*)"File name too long";
+        case EHOSTDOWN:             return (const char*)"Host is down";
+        case EHOSTUNREACH:          return (const char*)"No route to host";
+        case ENOTEMPTY:             return (const char*)"Directory not empty";
+        case EPROCLIM:              return (const char*)"Too many processes";
+        case EUSERS:                return (const char*)"Too many users";
+        case EDQUOT:                return (const char*)"Disc quota exceeded";
+        case ESTALE:                return (const char*)"Stale NFS file handle";
+        case EREMOTE:               return (const char*)"Too many levels of remote in path";
+        case EBADRPC:               return (const char*)"RPC struct is bad";
+        case ERPCMISMATCH:          return (const char*)"RPC version wrong";
+        case EPROGUNAVAIL:          return (const char*)"RPC prog. not avail";
+        case EPROGMISMATCH:         return (const char*)"Program version wrong";
+        case EPROCUNAVAIL:          return (const char*)"Bad procedure for program";
+        case ENOLCK:                return (const char*)"No locks available";
+        case ENOSYS:                return (const char*)"Function not implemented";
+        case EFTYPE:                return (const char*)"Inappropriate file type or format";
+        case EAUTH:                 return (const char*)"Authentication error";
+        case ENEEDAUTH:             return (const char*)"Need authenticator";
+        case EPWROFF:               return (const char*)"Device power is off";
+        case EDEVERR:               return (const char*)"Device error";
+        case EOVERFLOW:             return (const char*)"Value too large to be stored in data type";
+        case EBADEXEC:              return (const char*)"Bad executable (or shared library)";
+        case EBADARCH:              return (const char*)"Bad CPU type in executable";
+        case ESHLIBVERS:            return (const char*)"Shared library version mismatch";
+        case EBADMACHO:             return (const char*)"Malformed Mach-o file";
+        case ECANCELED:             return (const char*)"Operation canceled";
+        case EIDRM:                 return (const char*)"Identifier removed";
+        case ENOMSG:                return (const char*)"No message of desired type";
+        case EILSEQ:                return (const char*)"Illegal byte sequence";
+        case ENOATTR:               return (const char*)"Attribute not found";
+        case EBADMSG:               return (const char*)"Bad message";
+        case EMULTIHOP:             return (const char*)"EMULTIHOP (Reserved)";
+        case ENODATA:               return (const char*)"No STREAM resources";
+        case ENOLINK:               return (const char*)"ENOLINK (Reserved)";
+        case ENOSR:                 return (const char*)"No STREAM resources";
+        case ENOSTR:                return (const char*)"Not a STREAM";
+        case EPROTO:                return (const char*)"Protocol error";
+        case ETIME:                 return (const char*)"STREAM ioctl timeout";
+        case EOPNOTSUPP:            return (const char*)"Operation not supported on socket";
+        case ENOPOLICY:             return (const char*)"Policy not found";
+        case ENOTRECOVERABLE:       return (const char*)"State not recoverable";
+        case EOWNERDEAD:            return (const char*)"Previous owner died";
+        case EQFULL:                return (const char*)"Interface output queue is full";
+        default:                    return (const char*)"Unknown Error";
+    }
 }

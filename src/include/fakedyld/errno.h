@@ -11,7 +11,7 @@ int* __error();
 /*
  * Error codes
  */
-
+#define EUNDEFINED      0               /* Undefined error */
 #define EPERM           1               /* Operation not permitted */
 #define ENOENT          2               /* No such file or directory */
 #define ESRCH           3               /* No such process */
@@ -59,7 +59,6 @@ int* __error();
 #define EPROTONOSUPPORT 43              /* Protocol not supported */
 #define ESOCKTNOSUPPORT 44              /* Socket type not supported */
 #define ENOTSUP         45              /* Operation not supported */
-#define EOPNOTSUPP       ENOTSUP        /* Operation not supported on socket */
 #define EPFNOSUPPORT    46              /* Protocol family not supported */
 #define EAFNOSUPPORT    47              /* Address family not supported by protocol family */
 #define EADDRINUSE      48              /* Address already in use */
@@ -116,6 +115,7 @@ int* __error();
 #define ENOSTR          99              /* Not a STREAM */
 #define EPROTO          100             /* Protocol error */
 #define ETIME           101             /* STREAM ioctl timeout */
+#define EOPNOTSUPP      102             /* Operation not supported on socket */
 #define ENOPOLICY       103             /* No such policy registered */
 #define ENOTRECOVERABLE 104             /* State not recoverable */
 #define EOWNERDEAD      105             /* Previous owner died */
