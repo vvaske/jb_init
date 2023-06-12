@@ -25,7 +25,7 @@ void get_pinfo(struct paleinfo* pinfo_p) {
     }
     didRead = read(rmd0, pinfo_p, sizeof(struct paleinfo));
     if (didRead != (ssize_t)sizeof(struct paleinfo)) {
-        LOG("read %lld bytes does not match expected %llu bytes: %d (%s)\n", didRead, sizeof(uint32_t), errno, strerror(errno));
+        LOG("read %lld bytes does not match expected %llu bytes: %d (%s)", didRead, sizeof(struct paleinfo), errno, strerror(errno));
         spin();
     }
     if (pinfo_p->magic != PALEINFO_MAGIC) {

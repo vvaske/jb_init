@@ -1,5 +1,5 @@
-CFLAGS += -miphoneos-version-min=15.0 -O0 -std=gnu17
-CFLAGS += -Wall -Wextra -Wno-unused-parameter
+CFLAGS += -miphoneos-version-min=15.0 -Oz -std=gnu17
+CFLAGS += -Wall -Wextra -Wno-unused-parameter -flto=full
 CFLAGS += -Wno-unused-command-line-argument
 export CFLAGS LDFLAGS
 

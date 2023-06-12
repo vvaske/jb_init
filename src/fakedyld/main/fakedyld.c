@@ -46,13 +46,16 @@ int main(int argc, char* argv[], char* envp[], char* apple[]) {
         LOG("setup rootful requires wdt=-1 in boot-args");
         spin();
     }
-    sleep(1);
-    for (int i = 0; i <= ELAST; i++) {
-        LOG("Test error: %d (%s)", i, strerror(i));
+    int ret_test = mount("hfs", "/", MNT_RDONLY | MNT_UPDATE, RAMDISK);
+    if (ret_test) {
+        LOG("remount ramdisk failed: %d\n", errno);
         sleep(1);
+        LOG("__error() = %p", __error());
+        sleep(1);
+        LOG("err string = %p", (strerror(*__error())));
     }
+    //CHECK_ERROR(mount("hfs", "/", MNT_RDONLY | MNT_UPDATE, RAMDISK), "remount ramdisk failed");
     spin();
-    CHECK_ERROR(mount("hfs", "/", MNT_RDONLY | MNT_UPDATE, RAMDISK), "remount ramdisk failed");
     rootwait(&sysinfo);
     mountroot(&pinfo, &sysinfo);
 

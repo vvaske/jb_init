@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <fakedyld/types.h>
 
-int* __error();
+volatile int* __error();
 #define errno (*__error())
 
 /*

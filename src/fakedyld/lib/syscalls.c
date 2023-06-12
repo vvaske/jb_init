@@ -3,7 +3,7 @@
 #ifdef errno
 #undef errno
 #endif
-static int errno = 0;
+static volatile int errno = 0;
 
 __attribute__((naked)) kern_return_t thread_switch(mach_port_t new_thread, int option, mach_msg_timeout_t time)
 {
@@ -17,7 +17,7 @@ void cerror(int err) {
   errno = err;
 }
 
-int* __error() {
+volatile int* __error() {
   return &errno;
 }
 
