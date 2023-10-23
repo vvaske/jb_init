@@ -2,6 +2,7 @@
 #define FAKEDYLD_UTILS_H
 
 #include <paleinfo.h>
+#include <stdarg.h>
 
 void spin();
 void get_pinfo(struct paleinfo* pinfo_p);

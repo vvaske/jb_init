@@ -12,7 +12,7 @@ clean: $(patsubst %, %-clean, $(SUBDIRS))
 	rm -f dyld
 
 dyld: $(patsubst %, %-all, $(SUBDIRS))
-	$(CC) $(CFLAGS) $(LDFLAGS) $(shell find . -name '*.o' | grep 'obj/.*o') -o dyld
+	$(CC) $(CFLAGS) $(LDFLAGS) $$(find . -name '*.o' | grep 'obj/.*o') -o dyld
 	$(LDID) -Icom.apple.dyld -S dyld
 
 $(patsubst %, %-all, $(SUBDIRS)):

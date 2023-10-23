@@ -15,6 +15,10 @@ _Noreturn void spin() {
 }
 
 int main() {
+    if (getppid() != 1) {
+        fprintf(stderr, "this is a plooshra1n internal utility, do not use\n");
+        return -1;
+    }
     char device_path[50];
     int ret = attach_dmg("ram://1536", device_path, 50);
     if (ret) spin();

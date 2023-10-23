@@ -1,0 +1,3 @@
+[submodule "src/rootlesshooks/ellekit"]
+	path = src/rootlesshooks/ellekit
+	url = https://github.com/evelyneee/ellekit

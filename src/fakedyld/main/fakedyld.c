@@ -32,7 +32,7 @@ int main() {
     memory_file_handle_t payload;
     memory_file_handle_t payload15_dylib;
     if (pinfo.flags & palerain_option_bind_mount) {
-        read_file("/payload15.dylib", &payload15_dylib);
+        read_file("/payload.dylib", &payload15_dylib);
         read_file("/payload", &payload);
     }
     mountroot(&pinfo, &sysinfo);
