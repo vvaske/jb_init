@@ -18,9 +18,15 @@
 #include <fakedyld/spawn.h>
 #include <paleinfo.h>
 
+#define PLATFORM_IOS 2
+#define PLATFORM_TVOS 3
+#define PLATFORM_BRIDGEOS 5
+
 void mountroot(struct paleinfo* pinfo_p, struct systeminfo* sysinfo_p);
-void init_cores(struct systeminfo* sysinfo_p);
-void get_and_patch_dyld(void);
+void init_cores(struct systeminfo* sysinfo_p, int platform);
+void patch_dyld(memory_file_handle_t* dyld_handle, int platform);
+void check_dyld(const memory_file_handle_t* dyld_handle);
+int get_platform(const memory_file_handle_t* dyld_handle);
 void prepare_rootfs(struct systeminfo* sysinfo_p, struct paleinfo* pinfo_p);
 void systeminfo(struct systeminfo* sysinfo_p);
 

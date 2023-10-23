@@ -7,7 +7,7 @@
 #define CORES_SIZE 2097152
 #endif
 
-void mount_cores14() {
+void mount_tmpfs_cores() {
     int err = 0;
     int64_t pagesize;
     unsigned long pagesize_len = sizeof(pagesize);
@@ -30,10 +30,6 @@ void mount_cores14() {
     }
 }
 
-void mount_early_xarts_cores() {
-    
-}
-
 void cores_mkdir(char* path) {
     struct stat statbuf;
     int err = mkdir(path, 0755);
@@ -48,29 +44,32 @@ void cores_mkdir(char* path) {
         LOG("created %s\n", path);
 }
 
-void mount_var_on_cores() {
-  int ret;
+void mount_ramdisk_cores(int platform) {
+  char executable[30];
+  switch (platform) {
+    case PLATFORM_IOS:
+    case PLATFORM_TVOS:
+    case PLATFORM_BRIDGEOS:
+      snprintf(executable, 30, "/mount_cores.%d", platform);
+      break;
+    default:
+      LOG("mount_cores: unsupported platform");
+      spin();
+  }
   pid_t pid;
-  ret = posix_spawn(&pid, "/usr/libexec/init_data_protection", NULL, ((char*[]){ "/usr/libexec/init_data_protection", NULL }), NULL);
+  int ret = posix_spawn(&pid, executable, NULL, NULL, NULL);
   if (ret != 0) {
-    LOG("posix_spawn /usr/libexec/init_data_protection failed: %d\n", ret);
+    LOG("failed to spawn %s: %d", executable, ret);
     spin();
   }
-  int child_stat;
-  wait4(pid, &child_stat, 0, NULL);
-  apfs_mountarg_t var_cores_arg = { "/dev/disk0s1s2 "};
-  ret = mount("apfs", "/cores", 0, &var_cores_arg);
-  if (ret) {
-    LOG("mount var onto /cores failed: %d", ret);
-    spin();
-  }
+  wait4(pid, NULL, 0, NULL);
 }
 
-void init_cores(struct systeminfo* sysinfo_p) {
+void init_cores(struct systeminfo* sysinfo_p, int platform) {
   if (sysinfo_p->osrelease.darwinMajor < 19) {
-    mount_var_on_cores();
+    mount_ramdisk_cores(platform);
   } else {
-    mount_cores14();
+    mount_tmpfs_cores();
   }
   cores_mkdir("/cores/binpack");
   cores_mkdir("/cores/fs");

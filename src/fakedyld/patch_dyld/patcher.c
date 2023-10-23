@@ -4,56 +4,46 @@
 
 #define symbol_to_patch "____ZNK5dyld39MachOFile24forEachSupportedPlatformEU13block_pointerFvNS_8PlatformEjjE_block_invoke"
 
-void *dyld_buf;
-size_t dyld_len;
-int platform = 0;
-
-void platform_check_patch() {
+void platform_check_patch(void* arm64_dyld_buf, int platform) {
     // this patch tricks dyld into thinking everything is for the current platform
-    struct nlist_64 *forEachSupportedPlatform = macho_find_symbol(dyld_buf, symbol_to_patch);
+    struct nlist_64 *forEachSupportedPlatform = macho_find_symbol(arm64_dyld_buf, symbol_to_patch);
 
-    void *func_addr = dyld_buf + forEachSupportedPlatform->offset;
+    void *func_addr = arm64_dyld_buf + forEachSupportedPlatform->offset;
     uint64_t func_len = macho_get_symbol_size(forEachSupportedPlatform);
 
-    patch_platform_check(dyld_buf, func_addr, func_len, platform);
+    patch_platform_check(arm64_dyld_buf, func_addr, func_len, platform);
 }
 
-void patch_dyld() {
-    LOG("Plooshi(TM) libDyld64Patcher starting up...\n");
-    LOG("patching dyld...\n");
-    
-    if (!dyld_buf) {
+void check_dyld(const memory_file_handle_t* dyld_handle) {
+    if (!dyld_handle->file_p) {
         LOG("refusing to patch dyld buf at NULL\n");
         spin();   
     }
-    uint32_t magic = macho_get_magic(dyld_buf);
+    uint32_t magic = macho_get_magic(dyld_handle->file_p);
     if (!magic) {
         LOG("detected corrupted dyld\n");
         spin();
     }
-    void *orig_dyld_buf = dyld_buf;
     if (magic == 0xbebafeca) {
-        dyld_buf = macho_find_arch(dyld_buf, CPU_TYPE_ARM64);
-        if (!dyld_buf) {
+        void* arm64_dyld_buf = macho_find_arch(dyld_handle->file_p, CPU_TYPE_ARM64);
+        if (!arm64_dyld_buf) {
             LOG("detected unsupported or invalid dyld architecture\n");
             spin();
         }
     }
-    platform = macho_get_platform(dyld_buf);
+    return;
+}
+
+int get_platform(const memory_file_handle_t* dyld_handle) {
+    int platform = macho_get_platform(macho_find_arch(dyld_handle->file_p, CPU_TYPE_ARM64));
     if (platform == 0) {
         LOG("detected unsupported or invalid platform\n");
         spin();
     }
-    platform_check_patch();
-    LOG("done patching dyld\n");
+    return platform;
 }
 
-void get_and_patch_dyld(void) {
-    unlink("/cores/dyld");
-    memory_file_handle_t dyld;
-    read_file("/usr/lib/dyld", &dyld);
-    dyld_buf = dyld.file_p;
-    dyld_len = dyld.file_len;
-    patch_dyld();
-    write_file("/cores/dyld", &dyld);
+void patch_dyld(memory_file_handle_t* dyld_handle, int platform) {
+    platform_check_patch(macho_find_arch(dyld_handle->file_p, CPU_TYPE_ARM64), platform);
+    LOG("done patching dyld\n");
 }

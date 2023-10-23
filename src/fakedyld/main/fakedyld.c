@@ -37,12 +37,19 @@ int main() {
     }
     mountroot(&pinfo, &sysinfo);
     prepare_rootfs(&sysinfo, &pinfo);
-    init_cores(&sysinfo);
-    if (sysinfo.osrelease.darwinMajor > 19) {
+    memory_file_handle_t dyld_handle;
+    read_file("/usr/lib/dyld", &dyld_handle);
+    check_dyld(&dyld_handle);
+    int platform = get_platform(&dyld_handle);
+    init_cores(&sysinfo, platform);
+    patch_dyld(&dyld_handle, platform);
+    if (sysinfo.osrelease.darwinMajor > 20) {
         write_file("/cores/payload.dylib", &payload15_dylib);
         write_file("/cores/payload", &payload);
+    } else {
+        symlink("/payload", "/cores/payload");
+        symlink("/payload.dylib", "/cores/payload.dylib");
     }
-    get_and_patch_dyld();
     if (sysinfo.osrelease.darwinMajor > 19) {
         void* argv0 = mmap(NULL, sizeof("/sbin/launchd"), PROT_READ | PROT_WRITE, MAP_ANONYMOUS, 0, 0);
         void* envp0 = mmap(NULL, sizeof("DYLD_INSERT_LIBRARIES=/cores/payload.dylib"), PROT_READ | PROT_WRITE, MAP_ANONYMOUS, 0, 0);
@@ -55,13 +62,6 @@ int main() {
         envp[0] = envp0;
         envp[1] = NULL;
         ret = execve(argv0, argv, envp);
-    } else {
-        void* argv0 = mmap(NULL, sizeof("/payload"), PROT_READ | PROT_WRITE, MAP_ANONYMOUS, 0, 0);
-        char** argv = mmap(NULL, (sizeof(char*)*2), PROT_READ | PROT_WRITE, MAP_ANONYMOUS, 0, 0);
-        memcpy(argv0, "/payload", sizeof("/payload"));
-        argv[0] = argv0;
-        argv[1] = NULL;
-        ret = execve(argv0, argv, NULL);
     }
     LOG("execve failed with error=%d", ret);
     spin();
