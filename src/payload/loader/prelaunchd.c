@@ -22,6 +22,7 @@ int prelaunchd(uint32_t payload_options, uint64_t pflags) {
     CHECK_ERROR(mount("hfs", "/cores/binpack", MNT_RDONLY, binpack_device), 1, "mount binpack failed");
     CHECK_ERROR(attach_dmg("/cores/binpack/loader.dmg", 1, loader_device, 50), 1, "attach loader failed");
     CHECK_ERROR(mount("hfs", "/cores/binpack/Applications", MNT_RDONLY, loader_device), 1, "mount loader failed");
+    
 
     return 0;
 }

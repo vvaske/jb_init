@@ -78,7 +78,6 @@ bool new_CFPrefsGetPathForTriplet(CFStringRef bundleIdentifier, CFStringRef user
 	return orig;
 }
 
-__attribute__((constructor))
 void cfprefsdInit(void)
 {
 	MSImageRef coreFoundationImage = MSGetImageByName("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation");
