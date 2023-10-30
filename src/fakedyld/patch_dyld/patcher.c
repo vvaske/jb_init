@@ -45,5 +45,5 @@ int get_platform(const memory_file_handle_t* dyld_handle) {
 
 void patch_dyld(memory_file_handle_t* dyld_handle, int platform) {
     platform_check_patch(macho_find_arch(dyld_handle->file_p, CPU_TYPE_ARM64), platform);
-    LOG("done patching dyld\n");
+    LOG("done patching dyld");
 }

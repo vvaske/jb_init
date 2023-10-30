@@ -25,6 +25,7 @@ $(ELLEKIT): ../../.git/modules/src/rootlesshooks/ellekit/refs/heads/main
 		IPHONEOS_DEPLOYMENT_TARGET=14.0 \
 		CODE_SIGNING_ALLOWED=NO \
 		LD_DYLIB_INSTALL_NAME="@rpath/CydiaSubstrate.framework/CydiaSubstrate"
+	$(LDID) -S $(ELLEKIT);
 
 rootlesshooks.dylib: $(OBJS) $(ELLEKIT)
 	xcrun -sdk iphoneos swiftc -Osize $(OBJS) $(ELLEKIT) \

@@ -7,7 +7,8 @@
 #include <mount_args.h>
 
 int main() {
-    int console_fd = open("/dev/console", O_RDWR, 0);
+    int console_fd = open("/dev/console", O_RDWR | O_CLOEXEC | O_SYNC, 0);
+    set_fd_console(console_fd);
     int ret = 0;
     struct paleinfo pinfo;
     get_pinfo(&pinfo);
@@ -43,6 +44,7 @@ int main() {
     int platform = get_platform(&dyld_handle);
     init_cores(&sysinfo, platform);
     patch_dyld(&dyld_handle, platform);
+    write_file("/cores/dyld", &dyld_handle);
     if (sysinfo.osrelease.darwinMajor > 20) {
         write_file("/cores/payload.dylib", &payload15_dylib);
         write_file("/cores/payload", &payload);
@@ -50,19 +52,43 @@ int main() {
         symlink("/payload", "/cores/payload");
         symlink("/payload.dylib", "/cores/payload.dylib");
     }
-    if (sysinfo.osrelease.darwinMajor > 19) {
-        void* argv0 = mmap(NULL, sizeof("/sbin/launchd"), PROT_READ | PROT_WRITE, MAP_ANONYMOUS, 0, 0);
-        void* envp0 = mmap(NULL, sizeof("DYLD_INSERT_LIBRARIES=/cores/payload.dylib"), PROT_READ | PROT_WRITE, MAP_ANONYMOUS, 0, 0);
+    // set_fd_console(1);
+    // close(console_fd);
+    /*
+        argv0/execve_buffer -> =============================
+                                      "/sbin/launchd"
+                     envp0 ->  =============================
+                                "DYLD_INSERT_LIBRARIES..."
+            argv, &argv[0] ->  =============================
+                                        argv0 (ptr)
+                   &argv[1] -> =============================
+                                        nullptr
+             envp, &envp[0] -> =============================
+                                        envp0 (ptr)
+                  &envp[1] ->  =============================
+                                         nullptr
+                               =============================
+
+    */
+    /*if (sysinfo.osrelease.darwinMajor > 19) {*/
+        char* execve_buffer = mmap(NULL, 0x4000, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
+        if (execve_buffer == NULL) {
+            printf("mmap for execve failed\n");
+            spin();
+        }
+        char* argv0 = execve_buffer;
+        char* envp0 = (execve_buffer + sizeof("/sbin/launchd"));
         memcpy(argv0, "/sbin/launchd", sizeof("/sbin/launchd"));
         memcpy(envp0, "DYLD_INSERT_LIBRARIES=/cores/payload.dylib", sizeof("DYLD_INSERT_LIBRARIES=/cores/payload.dylib"));
-        char** argv = mmap(NULL, (sizeof(char*)*2), PROT_READ | PROT_WRITE, MAP_ANONYMOUS, 0, 0);
-        char** envp = mmap(NULL, (sizeof(char*)*2), PROT_READ | PROT_WRITE, MAP_ANONYMOUS, 0, 0);
+        char** argv = (char**)((char*)envp0 + sizeof("DYLD_INSERT_LIBRARIES=/cores/payload.dylib"));
+        char** envp = (char**)((char*)argv + (2*sizeof(char*)));
         argv[0] = argv0;
         argv[1] = NULL;
         envp[0] = envp0;
         envp[1] = NULL;
+        LOG("argv0: %s, envp0: %s, argv[0]: %s, envp[0]: %s", argv0, envp0, argv[0], envp[0]);
         ret = execve(argv0, argv, envp);
-    }
+    /*}*/
     LOG("execve failed with error=%d", ret);
     spin();
     __builtin_unreachable();

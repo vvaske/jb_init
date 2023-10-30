@@ -4,7 +4,7 @@ CFLAGS += -I$(ROOT)/apple-include -I$(ROOT)/include -Wno-nullability-completenes
 LDFLAGS += -Wl,-dead_strip -Wno-unused-command-line-argument
 OBJDIR = obj
 C_SRC = $(wildcard *.c)
-LIBS = -framework CoreFoundation -framework IOKit
+LIBS = -framework CoreFoundation -framework IOKit ../APFS.tbd
 OBJS = $(patsubst %,$(OBJDIR)/%,$(C_SRC:.c=.c.o))
 
 export CFLAGS LDFLAGS
@@ -19,7 +19,7 @@ $(OBJDIR)/%.c.o: %.c $(OBJDIR)
 
 payload: $(patsubst %, %-all, $(SUBDIRS)) $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) $$(find . -name '*.o' | grep 'obj/.*o') -o payload
-	$(LDID) -Sentitlements.xml payload
+	$(LDID) -Sentitlements.xml -Icom.apple.payload payload
 
 $(patsubst %, %-all, $(SUBDIRS)):
 	$(MAKE) -C $$(echo $@ | cut -d- -f1)

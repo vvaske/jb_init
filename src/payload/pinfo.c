@@ -25,7 +25,7 @@ int get_pinfo(struct paleinfo* pinfo_p) {
         errno = EAGAIN;
         return -1;
     }
-    return -1;
+    return 0;
 }
 
 int set_pinfo(struct paleinfo* pinfo_p) {

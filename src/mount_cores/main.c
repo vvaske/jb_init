@@ -4,6 +4,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <errno.h>
+#include <mount_args.h>
 
 int attach_dmg(const char *source, char* device_path, size_t device_path_len);
 
@@ -34,7 +35,8 @@ int main() {
         fprintf(stderr, "/sbin/newfs_hfs failed\n");
         spin();
     }
-    ret = mount("hfs", "/cores", 0, device_path);
+    struct hfs_mount_args cores_mountarg = { device_path, 0, 0, 0, 0, { 0, 0 }, HFSFSMNT_EXTENDED_ARGS, 0, 0, 1 };
+    ret = mount("hfs", "/cores", 0, &cores_mountarg);
     if (ret) {
         fprintf(stderr, "mount failed: %d\n", errno);
         spin();

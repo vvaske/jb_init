@@ -24,9 +24,9 @@ int hook_posix_spawnp_launchd(pid_t *pid,
                               const posix_spawnattr_t *attr,
                               char *const argv[], char *envp[])
 {
-    if ((pflags & palerain_option_rootful) == 0 &&
+    if ((pflags & palerain_option_rootful) != 0 || (
         strcmp(path, "/System/Library/CoreServices/SpringBoard.app/SpringBoard") 
-        && (argv[1] == NULL || strcmp(argv[1], "com.apple.cfprefsd.xpc.daemon") || strcmp(argv[1], "com.apple.lsd.xpc.daemon"))
+        && (argv[1] == NULL || strcmp(argv[1], "com.apple.cfprefsd.xpc.daemon") || strcmp(argv[1], "com.apple.lsd.xpc.daemon")))
         ) {
         return posix_spawnp_orig_wrapper(pid, path, action, attr, argv, envp);
     }

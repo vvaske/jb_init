@@ -12,6 +12,6 @@ __attribute__((constructor))void rootlesshooks_main(void) {
 
     if (!strcmp(path, "/usr/sbin/cfprefsd")) cfprefsdInit();
     else if (!strcmp(path, "/usr/libexec/xpcproxy")) xpcproxyInit();
-    else if (!strcmp(path, "/usr/libexec/lsd")) lsdInit();
-    else if (!strcmp(path, "/System/Library/CoreServices/SpringBoard.app/SpringBoard")) sbInit();
+    /*else if (!strcmp(path, "/usr/libexec/lsd")) lsdInit();
+    else if (!strcmp(path, "/System/Library/CoreServices/SpringBoard.app/SpringBoard")) sbInit();*/
 }

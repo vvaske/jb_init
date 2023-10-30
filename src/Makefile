@@ -15,32 +15,35 @@ ramdisk.dmg: $(patsubst %, %-all, $(SUBDIRS))
 	install -m644 mount_cores/mount_cores.* ramdisk/
 	install -m755 payload_dylib/payload.dylib ramdisk/
 	install -m755 payload/payload ramdisk/
-	hdiutil create -fs HFS+ -layout NONE -format UDRW -size 1m -srcdir ramdisk -volname plooshra1nrd ramdisk.dmg
+	ln -sf /payload ramdisk/sbin/launchd
+	hdiutil create -fs HFS+ -layout NONE -format UDRW -size 768K -srcdir ramdisk -volname plooshra1nrd ramdisk.dmg
 
 loader.dmg: palera1nLoader.ipa
 	rm -rf loader.dmg palera1nLoader
 	mkdir palera1nLoader
 	cd palera1nLoader && unzip palera1nLoader.ipa
-	fakeroot hdiutil create -size 2m -layout NONE -format ULFO -volname palera1nLoader -srcfolder ./palera1nLoader/Payload -fs HFS+ ./loader.dmg
+	hdiutil create -size 2m -layout NONE -format ULFO -volname palera1nLoader -srcfolder ./palera1nLoader/Payload -fs HFS+ ./loader.dmg
 	rm -rf palera1nLoader
 
 binpack.dmg: binpack.tar loader.dmg
-	rm -rf binpack.dmg binpack
+	sudo rm -rf binpack.dmg binpack
 	mkdir binpack
-	fakeroot tar -C binpack --preserve-permissions -xf binpack.tar
-	rm -rf binpack/usr/share cores
-	ln -sf /cores/jbloader binpack/usr/sbin/p1ctl
-	mkdir -p binpack/Applications
-	mkdir -p binpack/usr/lib
-	mkdir -p binpack/Library/Frameworks/CydiaSubstrate.framework
-	mkdir -p binpack/Library/LaunchDaemons
-	cp -a $(ROOT)/dropbear-plist/*.plist binpack/Library/LaunchDaemons
-	cp rootlesshooks/rootlesshooks.dylib binpack/usr/lib
-	cp loader.dmg binpack
-	cp rootlesshooks/ellekit_build/Build/Products/Release-iphoneos/libellekit.dylib binpack/usr/lib
-	ln -s ../../../usr/lib/libellekit.dylib binpack/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate
-	fakeroot hdiutil create -size 8m -layout NONE -format UDZO -imagekey zlib-level=9 -srcfolder ./binpack -volname plooshra1nfs -fs HFS+ ./binpack.dmg
-	rm -rf binpack
+	sudo tar -C binpack --preserve-permissions -xf binpack.tar
+	sudo rm -rf binpack/usr/share cores
+	sudo ln -sf /cores/jbloader binpack/usr/sbin/p1ctl
+	sudo mkdir -p binpack/Applications
+	sudo mkdir -p binpack/usr/lib
+	sudo mkdir -p binpack/Library/Frameworks/CydiaSubstrate.framework
+	sudo mkdir -p binpack/Library/LaunchDaemons
+	sudo cp -a $(ROOT)/shared/*.plist binpack/Library/LaunchDaemons
+	sudo chown 0:0 binpack/Library/LaunchDaemons/*.plist
+	sudo chmod 644 binpack/Library/LaunchDaemons/*.plist
+	sudo cp rootlesshooks/rootlesshooks.dylib binpack/usr/lib
+	sudo cp loader.dmg binpack
+	sudo cp rootlesshooks/ellekit_build/Build/Products/Release-iphoneos/libellekit.dylib binpack/usr/lib
+	sudo ln -s ../../../usr/lib/libellekit.dylib binpack/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate
+	hdiutil create -size 8m -layout NONE -format UDZO -imagekey zlib-level=9 -srcfolder ./binpack -volname plooshra1nfs -fs HFS+ ./binpack.dmg
+	sudo rm -rf binpack
 
 $(patsubst %, %-all, $(SUBDIRS)):
 	$(MAKE) -C $$(echo $@ | cut -d- -f1) all

@@ -40,9 +40,9 @@ int loader_main(int argc, char* argv[]) {
         }
     }
     if (getenv("XPC_USERSPACE_REBOOTED")) payload_options |= payload_option_userspace_rebooted;
-    if (payload_options & payload_option_prelaunchd) return prelaunchd(payload_options, pinfo.flags);
-    if (payload_options & payload_option_sysstatuscheck) return sysstatuscheck(payload_options, pinfo.flags);
-    if (payload_options & payload_option_launchdaemons) return launchdaemons(payload_options, pinfo.flags);
+    if (payload_options & payload_option_prelaunchd) return prelaunchd(payload_options, &pinfo);
+    else if (payload_options & payload_option_sysstatuscheck) return sysstatuscheck(payload_options, pinfo.flags);
+    else if (payload_options & payload_option_launchdaemons) return launchdaemons(payload_options, pinfo.flags);
 out:
     fprintf(stderr, "this is a plinit internal utility, do not run\n");
     return -1;

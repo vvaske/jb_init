@@ -32,6 +32,7 @@
 #define SYS_lseek               199
 #define SYS_posix_spawn         244
 #define SYS_sys_sysctlbyname    274
+#define SYS_stat64              338
 #define SYS_getdirentries64     344
 #define SYS_statfs64            345
 #define SYS_fs_snapshot         518
@@ -62,7 +63,7 @@ int mkdir(char* path, int mode);
 int rmdir(char* path);
 int unmount(char *path, int flags);
 int mount(char* type, char* path, int flags, void* data);
-int stat(void *path, struct stat *ub);
+int stat64(void *path, struct stat64 *ub);
 void *mmap(void *addr, size_t length, int prot, int flags, int fd, uint64_t offset);
 uint64_t lseek(int fildes, int32_t offset, int whence);
 int sys_sysctlbyname(const char *name, size_t namelen, void *old, size_t *oldlenp, void *new_, size_t newlen);

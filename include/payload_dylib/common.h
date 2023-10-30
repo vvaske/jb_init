@@ -20,5 +20,6 @@
 extern uint64_t pflags;
 extern char** environ;
 void _spin(int fd_console);
+int get_platform();
 
 #endif

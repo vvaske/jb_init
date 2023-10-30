@@ -1,6 +1,11 @@
-#ifndef MOUNT_ARGS_H
-#define MOUNT_ARGS_H
+#ifndef _MOUNT_ARGS_H
+#define _MOUNT_ARGS_H
 #include <stdint.h>
+#if !__STDC_HOSTED__
+#include <fakedyld/types.h>
+#else
+#include <sys/time.h>
+#endif
 
 /* APFS mode modes */
 #define APFS_MOUNT_DEFAULT_SNAPSHOT         0x0 /* mount the default snapshot */
@@ -16,8 +21,12 @@
 #define APFS_MOUNT_IMG4                     0x8 /* mount live fs while suppling some representation of im4p and im4m */
 /* End APFS mount modes*/
 
+#define HFSFSMNT_NOXONFILES	0x1	/* disable execute permissions for files */
+#define HFSFSMNT_WRAPPER	0x2	/* mount HFS wrapper (if it exists) */
+#define HFSFSMNT_EXTENDED_ARGS  0x4     /* indicates new fields after "flags" are valid */
+
 /* Fourth argument to mount(2) when mounting apfs */
-typedef struct apfs_mountarg {
+typedef struct apfs_mount_args {
     char* path; /* path to device to mount from */
     uint64_t _null; /* 0 */
     uint32_t mount_mode; /* see above define */
@@ -25,13 +34,24 @@ typedef struct apfs_mountarg {
     char snapshot[0x100]; /* snapshot name when mount mode is 2 */
     char im4p[16]; /* some representation of root hash im4p */
     char im4m[16]; /* some representation of root hash im4m */
-} apfs_mountarg_t;
+} apfs_mount_args_t;
 
 /*
  * Fourth argument to mount(2) when mounting hfs 
- * string representing the device to mount from
 */
-typedef char* hfs_mountarg_t;
+typedef struct hfs_mount_args {
+	char	*fspec;			/* block special device to mount */
+	uid_t	hfs_uid;		/* uid that owns hfs files (standard HFS only) */
+	gid_t	hfs_gid;		/* gid that owns hfs files (standard HFS only) */
+	mode_t	hfs_mask;		/* mask to be applied for hfs perms  (standard HFS only) */
+	uint32_t hfs_encoding;	/* encoding for this volume (standard HFS only) */
+	struct	timezone hfs_timezone;	/* user time zone info (standard HFS only) */
+	int		flags;			/* mounting flags, see below */
+	int     journal_tbuffer_size;   /* size in bytes of the journal transaction buffer */
+	int		journal_flags;          /* flags to pass to journal_open/create */
+	int		journal_disable;        /* don't use journaling (potentially dangerous) */
+
+} hfs_mount_args_t;
 
 /* Fourth argument to mount(2) when mounting tmpfs */
 typedef struct tmpfs_mountarg {

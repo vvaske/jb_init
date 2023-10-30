@@ -11,6 +11,7 @@
 #define O_TRUNC 0x00000400 /* truncate to zero length */
 #define O_APPEND        0x00000008      /* set append mode */
 #define O_EXCL          0x00000800      /* error if already exists */
+#define O_CLOEXEC       0x01000000      /* close on exec */
 
 /* lseek */
 #define SEEK_SET 0

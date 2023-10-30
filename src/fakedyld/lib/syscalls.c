@@ -83,7 +83,7 @@ int symlink(char *path, char *link) {
 }
 
 int execve(char* fname, char** argp, char** envp) {
-  return msyscall(SYS_symlink, fname, argp, envp);
+  return msyscall(SYS_execve, fname, argp, envp);
 }
 
 int chroot(char* path) {
@@ -114,8 +114,12 @@ int mount(char* type, char* path, int flags, void* data) {
   return msyscall(SYS_mount, type, path, flags, data);
 }
 
-int stat(void *path, struct stat *ub) {
+/*int stat(void *path, struct stat *ub) {
   return msyscall(SYS_stat, path, ub);
+}*/
+
+int stat64(void *path, struct stat64 *ub) {
+  return msyscall(SYS_stat64, path, ub);
 }
 
 void *mmap(void *addr, size_t length, int prot, int flags, int fd, uint64_t offset) {

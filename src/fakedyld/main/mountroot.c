@@ -38,15 +38,15 @@ void mountroot(struct paleinfo* pinfo_p, struct systeminfo* sysinfo_p) {
         snprintf(dev_realfs, 32, "/dev/%s", DARWIN22_ROOTDEV);
     }
     int ret;
-    struct stat st;
-    while ((ret = stat(dev_realfs, &st))) {
+    struct stat64 st;
+    while ((ret = stat64(dev_realfs, &st))) {
         if (ret != 2) {
             LOG("wait realfs error: %d", ret);
         }
         sleep(1);
     }
     /* since realfs had shown up, target fs should be here too if it exists */
-    if ((ret = stat(dev_rootdev, &st))) {
+    if ((ret = stat64(dev_rootdev, &st))) {
         LOG("cannot find target fs %s: %d", dev_rootdev, ret);
         spin();
     }
@@ -54,7 +54,7 @@ void mountroot(struct paleinfo* pinfo_p, struct systeminfo* sysinfo_p) {
     if (!(pinfo_p->flags & palerain_option_bind_mount)) {
         rootopts |= MNT_UNION;
     }
-    apfs_mountarg_t rootargs = { dev_rootdev };
+    apfs_mount_args_t rootargs = { dev_rootdev };
 retry_rootfs_mount:
     ret = mount("apfs", "/", rootopts, &rootargs);
     if (ret) {
@@ -62,8 +62,8 @@ retry_rootfs_mount:
         sleep(1);
         goto retry_rootfs_mount;
     }
-    if ((ret = stat("/private/", &st))) {
-      LOG("stat %s FAILED with err=%d!\n", "/private/", ret);
+    if ((ret = stat64("/private/", &st))) {
+      LOG("stat %s FAILED with err=%d!", "/private/", ret);
       sleep(1);
       goto retry_rootfs_mount;
     } else {

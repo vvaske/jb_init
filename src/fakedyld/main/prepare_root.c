@@ -2,8 +2,13 @@
 #include <mount_args.h>
 
 void prepare_rootfs(struct systeminfo* sysinfo_p, struct paleinfo* pinfo_p) {
-    struct stat statbuf;
-    if (stat("/System/Library/Frameworks/IOKit.framework", &statbuf) == 0) {
+    int ret;
+    if ((ret = mount("devfs", "/dev", 0, "devfs"))) {
+        LOG("mount devfs failed: %d", ret);
+        spin();
+    }
+    struct stat64 statbuf;
+    if (stat64("/System/Library/Frameworks/IOKit.framework", &statbuf) == 0) {
         return;
     }
     if (!(pinfo_p->flags & palerain_option_ssv)) return;
@@ -14,11 +19,11 @@ void prepare_rootfs(struct systeminfo* sysinfo_p, struct paleinfo* pinfo_p) {
         snprintf(real_rootdev, 32, "/dev/%s" DARWIN21_ROOTDEV); 
     }
     LOG("mounting realfs %s\n", real_rootdev);
-    struct apfs_mountarg arg = {
+    struct apfs_mount_args arg = {
         real_rootdev,
         0, 1 /* "bdevvp failed: open" kernel panic when mount snapshot */, 0
     };
-    int ret = mount("apfs", "/cores/fs/real", MNT_RDONLY, &arg);
+    ret = mount("apfs", "/cores/fs/real", MNT_RDONLY, &arg);
     if (ret) {
         LOG("cannot mount %s onto %s, ret=%d\n", real_rootdev, "/cores/fs/real", ret);
         spin();

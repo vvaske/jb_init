@@ -48,7 +48,7 @@ struct dirent __DARWIN_STRUCT_DIRENTRY;
         time_t          st_birthtime;           /*  File creation time(birth)  */ \
         long            st_birthtimensec;       /* nsec of File creation time */
 
-struct stat { \
+struct stat64 { \
         dev_t           st_dev;                 /* [XSI] ID of device containing file */
         mode_t          st_mode;                /* [XSI] Mode of file (see below) */
         nlink_t         st_nlink;               /* [XSI] Number of hard links */
@@ -108,6 +108,11 @@ typedef struct attrreference {
 	int32_t     attr_dataoffset;
 	uint32_t   attr_length;
 } attrreference_t;
+
+struct timezone { 
+  int tz_minuteswest;
+  int tz_dsttime;
+};
 
 struct statfs64 __DARWIN_STRUCT_STATFS64;
 #endif

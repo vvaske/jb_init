@@ -17,9 +17,6 @@ int attach_dmg(const char *source, char* device_path, size_t device_path_len)
 int attach_dmg(const char *source, bool is_overlay, char* device_path, size_t device_path_len)
 #endif
 {
-  CFDictionaryKeyCallBacks key_callback = kCFTypeDictionaryKeyCallBacks;
-  CFDictionaryValueCallBacks value_callback = kCFTypeDictionaryValueCallBacks;
-  CFAllocatorRef allocator = kCFAllocatorDefault;
   CFMutableDictionaryRef hdix = IOServiceMatching("IOHDIXController");
   io_service_t hdix_service = IOServiceGetMatchingService(kIOMasterPortDefault, hdix);
   io_connect_t connect;
@@ -27,25 +24,26 @@ int attach_dmg(const char *source, bool is_overlay, char* device_path, size_t de
   kern_return_t open_hdix = IOServiceOpen(hdix_service, mach_task_self(), 0, &connect);
   assert(open_hdix == KERN_SUCCESS);
   fprintf(stderr, "IOServiceOpen: %d\n", open_hdix);
-  CFMutableDictionaryRef props = CFDictionaryCreateMutable(allocator, 0, &key_callback, &value_callback);
-  CFUUIDRef uuid = CFUUIDCreate(allocator);
+  CFMutableDictionaryRef props = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CFUUIDRef uuid = CFUUIDCreate(kCFAllocatorDefault);
   CFStringRef uuid_string = CFUUIDCreateString(0, uuid);
   size_t source_len = strlen(source);
-  CFDataRef path_bytes = CFDataCreateWithBytesNoCopy(allocator, (unsigned char *)source, source_len, kCFAllocatorNull);
+  CFDataRef path_bytes = CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, (unsigned char *)source, source_len, kCFAllocatorNull);
   assert(path_bytes != 0);
   CFDictionarySetValue(props, CFSTR("hdik-unique-identifier"), uuid_string);
   CFDictionarySetValue(props, CFSTR("image-path"), path_bytes);
   CFDictionarySetValue(props, CFSTR("autodiskmount"), kCFBooleanFalse);
   CFDictionarySetValue(props, CFSTR("removable"), kCFBooleanTrue);
 #ifndef MOUNT_CORES
+  CFMutableDictionaryRef image_secrets = NULL;
   if (is_overlay)
   {
-    CFMutableDictionaryRef image_secrets = CFDictionaryCreateMutable(allocator, 0, &key_callback, &value_callback);
+    image_secrets = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
     CFDictionarySetValue(image_secrets, CFSTR("checkra1n-overlay"), kCFBooleanTrue);
     CFDictionarySetValue(props, CFSTR("image-secrets"), image_secrets);
   }
 #endif
-  CFDataRef hdi_props = CFPropertyListCreateData(allocator, props, kCFPropertyListXMLFormat_v1_0, 0, 0);
+  CFDataRef hdi_props = CFPropertyListCreateData(kCFAllocatorDefault, props, kCFPropertyListXMLFormat_v1_0, 0, 0);
   assert(hdi_props != 0);
   struct HDIImageCreateBlock64 hdi_stru;
   memset(&hdi_stru, 0, sizeof(hdi_stru));
@@ -83,8 +81,10 @@ int attach_dmg(const char *source, bool is_overlay, char* device_path, size_t de
   while (1)
   {
     io_object_t next = IOIteratorNext(iter);
-    if ((int)next == 0)
-      break;
+    if ((int)next == 0) {
+      fprintf(stderr, "cannot find BSD Name from IO registery");
+      return 1;
+    }
     CFStringRef bsd_name = (CFStringRef)IORegistryEntryCreateCFProperty(next & 0xffffffff, CFSTR("BSD Name"), 0, 0);
     char buf[1024];
     if (bsd_name == 0)
@@ -93,8 +93,18 @@ int attach_dmg(const char *source, bool is_overlay, char* device_path, size_t de
     assert(cstring != '\0');
     snprintf(device_path, device_path_len, "/dev/%s", buf);
     puts(device_path);
-    return 0;
+    CFRelease(bsd_name);
+    break;
   }
-  fprintf(stderr, "cannot find BSD Name from IO registery");
-  return 1;
+#ifndef MOUNT_CORES
+  if (image_secrets) CFRelease(image_secrets);
+#endif
+  CFRelease(uuid_string);
+  CFRelease(uuid);
+  CFRelease(path_bytes);
+  CFRelease(hdix);
+  CFRelease(hdi_props);
+  IOObjectRelease(hdix_service);
+  IOObjectRelease(iter);
+  return 0;
 }

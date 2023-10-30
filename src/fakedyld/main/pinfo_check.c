@@ -54,7 +54,6 @@ void pinfo_check(struct paleinfo* pinfo_p) {
     } set_of_interdependent_flags[] = {
         { palerain_option_setup_rootful | palerain_option_setup_partial_root, "Cannot setup a partial fakefs without also setting up fakefs, use -Bc together" },
         { palerain_option_safemode | palerain_option_setup_rootful, "cannot safe mode while setup fakefs" },
-        { palerain_option_setup_rootful | palerain_option_ssv, "setup fakefs not allowed without ssv, remove -c" },
         {0, NULL}
     };
     for (uint8_t i = 0; set_of_interdependent_flags[i].interdependent_flags != 0; i++) {

@@ -29,5 +29,5 @@ void check_dyld(const memory_file_handle_t* dyld_handle);
 int get_platform(const memory_file_handle_t* dyld_handle);
 void prepare_rootfs(struct systeminfo* sysinfo_p, struct paleinfo* pinfo_p);
 void systeminfo(struct systeminfo* sysinfo_p);
-
+void set_fd_console(int fd_console);
 #endif
