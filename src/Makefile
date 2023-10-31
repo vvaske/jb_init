@@ -21,7 +21,7 @@ ramdisk.dmg: $(patsubst %, %-all, $(SUBDIRS))
 loader.dmg: palera1nLoader.ipa
 	rm -rf loader.dmg palera1nLoader
 	mkdir palera1nLoader
-	cd palera1nLoader && unzip palera1nLoader.ipa
+	cd palera1nLoader && unzip ../palera1nLoader.ipa
 	hdiutil create -size 2m -layout NONE -format ULFO -volname palera1nLoader -srcfolder ./palera1nLoader/Payload -fs HFS+ ./loader.dmg
 	rm -rf palera1nLoader
 
@@ -42,7 +42,7 @@ binpack.dmg: binpack.tar loader.dmg
 	sudo cp loader.dmg binpack
 	sudo cp rootlesshooks/ellekit_build/Build/Products/Release-iphoneos/libellekit.dylib binpack/usr/lib
 	sudo ln -s ../../../usr/lib/libellekit.dylib binpack/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate
-	hdiutil create -size 8m -layout NONE -format UDZO -imagekey zlib-level=9 -srcfolder ./binpack -volname plooshra1nfs -fs HFS+ ./binpack.dmg
+	hdiutil create -size 10m -layout NONE -format UDZO -imagekey zlib-level=9 -srcfolder ./binpack -volname plooshra1nfs -fs HFS+ ./binpack.dmg
 	sudo rm -rf binpack
 
 $(patsubst %, %-all, $(SUBDIRS)):

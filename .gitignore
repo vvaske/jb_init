@@ -9,3 +9,5 @@ plooshra1n
 apple-include
 statfs
 statfs.c
+*.xz
+*.lzma
