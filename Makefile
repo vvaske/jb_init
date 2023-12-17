@@ -24,7 +24,7 @@ export SRC CC CFLAGS LDFLAGS STRIP I_N_T
 
 all: ramdisk.dmg
 
-binpack.dmg: binpack.tar loader.dmg hook_all
+binpack.dmg: binpack.tar loader.dmg bootscreend hook_all
 	sudo rm -rf ./binpack.dmg binpack
 	sudo mkdir binpack
 	sudo tar -C binpack --preserve-permissions -xf binpack.tar
@@ -39,6 +39,8 @@ binpack.dmg: binpack.tar loader.dmg hook_all
 	sudo cp loader.dmg binpack
 	sudo cp src/systemhooks/libellekit.dylib binpack/usr/lib
 	sudo ln -s ../../../usr/lib/libellekit.dylib binpack/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate
+	sudo cp $(SRC)/bootscreend/bootscreend binpack/bin
+	sudo cp -a data/boot.png binpack/splash.png
 	sudo chown -R 0:0 binpack
 	hdiutil create -size 8m -layout NONE -format UDZO -imagekey zlib-level=9 -srcfolder ./binpack -volname palera1nfs -fs HFS+ ./binpack.dmg
 	sudo rm -rf binpack
@@ -90,4 +92,4 @@ clean:
 hook_all:
 	$(MAKE) -C src/systemhooks all
 
-.PHONY: all clean jbinit jbloader payload.dylib dyld_platform_test xpchook.dylib binpack.dmg hook_all
+.PHONY: all clean jbinit jbloader bootscreend payload.dylib dyld_platform_test xpchook.dylib binpack.dmg hook_all

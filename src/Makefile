@@ -1,4 +1,4 @@
-SUBDIRS = jbinit jbloader systemhooks
+SUBDIRS = jbinit jbloader systemhooks bootscreend
 
 all: $(SUBDIRS)
 	@echo $(SUBDIRS)
@@ -11,5 +11,8 @@ jbloader:
 
 systemhooks:
 	$(MAKE) -C $(SRC)/systemhooks payload.dylib
+
+bootscreend:
+	$(MAKE) -C $(SRC)/bootscreend
 
 .PHONY: all $(SUBDIRS)

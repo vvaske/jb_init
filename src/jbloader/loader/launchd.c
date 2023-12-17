@@ -83,6 +83,7 @@ int jbloader_early(int argc, char **argv)
       spin();
     create_remove_fakefs();
   }
+  display_bootscreen();
   puts("Closing console, goodbye!");
   /*
     Launchd doesn't like it when the console is open already!
