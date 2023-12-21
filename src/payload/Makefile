@@ -5,8 +5,7 @@ LDFLAGS += -Wl,-dead_strip -Wno-unused-command-line-argument
 OBJDIR = obj
 C_SRC = $(wildcard *.c)
 LIBS = -framework CoreFoundation -framework IOKit -framework Foundation
-LIBS+= -framework CoreGraphics -framework ImageIO -framework IOSurface
-LIBS += ../libs/APFS.tbd ../libs/IOMobileFramebuffer.tbd ../libjailbreak/libjailbreak.a
+LIBS += ../libs/APFS.tbd ../libjailbreak/libjailbreak.a
 OBJS = $(patsubst %,$(OBJDIR)/%,$(C_SRC:.c=.c.o))
 
 LAUNCHCTL_OBJ = bootstrap.o xpc_helper.o load.o

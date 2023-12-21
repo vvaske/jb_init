@@ -9,7 +9,6 @@
 #include <CoreGraphics/CoreGraphics.h>
 #include <ImageIO/CGImageSource.h>
 #include <IOMobileFramebuffer/IOMobileframebuffer.h>
-#include <payload/payload.h>
 #include <IOSurface/IOSurface.h>
 #include <sys/stat.h>
 
@@ -35,7 +34,7 @@ int init_display(void) {
 
     // create buffer
     CFMutableDictionaryRef properties = CFDictionaryCreateMutable(NULL, 0, NULL, NULL);
-    CFDictionarySetValue(properties, CFSTR("IOSurfaceIsGlobal"), kCFBooleanTrue);
+    CFDictionarySetValue(properties, CFSTR("IOSurfaceIsGlobal"), kCFBooleanFalse);
     CFDictionarySetValue(properties, CFSTR("IOSurfaceWidth"), CFNumberCreate(NULL, kCFNumberIntType, &width));
     CFDictionarySetValue(properties, CFSTR("IOSurfaceHeight"), CFNumberCreate(NULL, kCFNumberIntType, &height));
     CFDictionarySetValue(properties, CFSTR("IOSurfacePixelFormat"), CFNumberCreate(NULL, kCFNumberIntType, &(int){ 0x42475241 }));
@@ -65,7 +64,7 @@ int init_display(void) {
     return 0;
 }
 
-#define BOOT_IMAGE_PATH "/cores/binpack/usr/share/boot.heic"
+#define BOOT_IMAGE_PATH "/cores/binpack/usr/share/boot.jp2"
 
 int bootscreend_main(void) {
     init_display();
@@ -75,25 +74,6 @@ int bootscreend_main(void) {
             *(int *)(base + offset) = 0x00000000;
         }
     }
-
-#if 0
-    struct stat st;
-    int ret = stat("/cores/binpack/usr/share/boot.heic", &st);
-    if (ret) {
-        fprintf(stderr, "failed to stat image: %d (%s)\n", errno, strerror(errno));
-        return -1;
-    }
-    int fd = open(BOOT_IMAGE_PATH, O_RDONLY);
-    if (fd == -1) {
-        fprintf(stderr, "failed to open image: %d (%s)\n", errno, strerror(errno));
-        return -1;
-    }
-    const char* imageData = mmap(NULL, st.st_size, PROT_READ, MAP_FILE | MAP_PRIVATE, fd, 0);
-    if (imageData == MAP_FAILED) {
-        fprintf(stderr, "failed to mmap image: %d (%s)\n", errno, strerror(errno));
-        return -1;
-    }
-#endif
 
     CFURLRef imageURL = NULL;
     CGImageSourceRef cgImageSource = NULL;
@@ -122,11 +102,12 @@ int bootscreend_main(void) {
     }
     CGContextDrawImage(context, CGRectMake(0, 0, width, height), cgImage);
     retval = 0;
-    printf("bootscreend: done\n");
+    fprintf(stderr, "bootscreend: done\n");
 finish:
     if (context) CGContextRelease(context);
     if (cgImage) CGImageRelease(cgImage);
     if (cgImageSource) CFRelease(cgImageSource);
     if (imageURL) CFRelease(imageURL);
+
     return retval;
 }

@@ -76,6 +76,8 @@ __attribute__((constructor))void launchd_hook_main(void) {
   } else {
     spin();
   }
+
+  bootscreend_main();
   void* systemhook_handle = dlopen(HOOK_DYLIB_PATH, RTLD_NOW);
   if (!systemhook_handle) {
     dprintf(fd_console, "dlopen systemhook failed: %s\n", dlerror());
