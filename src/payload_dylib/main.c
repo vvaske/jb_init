@@ -42,7 +42,7 @@ uint64_t load_pflags(int fd_console) {
   return pflags;
 }
 
-__attribute__((constructor))void launchd_hook_main() {
+__attribute__((constructor))void launchd_hook_main(void) {
   if (getpid() != 1) return;
   int fd_console = open("/dev/console",O_RDWR|O_SYNC,0);
   if (fd_console == -1) {
