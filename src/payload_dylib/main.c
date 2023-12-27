@@ -56,7 +56,7 @@ __attribute__((constructor))void launchd_hook_main(void) {
   dup2(fd_console, STDERR_FILENO);
 
   printf("=========== hello from payload.dylib ===========\n");
-  crashreporter_start();
+  //crashreporter_start();
   setenv("JB_SANDBOX_EXTENSIONS", generate_sandbox_extensions(), 1);
   load_pflags();
   pid_t pid;
