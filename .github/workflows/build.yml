@@ -38,6 +38,10 @@ jobs:
           cp src/ramdisk.dmg dist/ramdisk.dmg
           cp src/binpack.dmg dist/binpack.dmg
 
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v7
+
       - name: Upload artifact
         uses: wangyucode/sftp-upload-action@v1.4.8
         with:
@@ -49,3 +53,14 @@ jobs:
           dryRun: false
           localDir: 'dist/'
           remoteDir: '/palera1n/c-rewrite/deps/'
+
+      - name: Upload artifact
+        uses: wangyucode/sftp-upload-action@v1.4.8
+        with:
+          host: ${{ secrets.MINEEK_FTP_HOST }}
+          username: cdnfiles
+          password: ${{ secrets.MINEEK_FTP_PASS }}
+          forceUpload: true
+          dryRun: false
+          localDir: 'dist/'
+          remoteDir: '/uploads/palera1n/artifacts/jbinit/${{ steps.branch-name.outputs.ref_branch || github.ref_name }}/${{ github.run_number }}'
